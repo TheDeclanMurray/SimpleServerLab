@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+
+        <style>
+
+        </style>
+    </head>
+    <body>
+
+        <button>
+            {% set k = "browse?p="+ p %}
+            <a href={{k}}>Parent</a>
+        </button>
+
+
+        {% for child in dirList %}
+
+        {% set route = "browse?p=" + r + "/" +child %}
+
+        <div>
+            <a href={{route}}>
+                {{ child }}
+            </a>
+        </div>
+        
+
+        {% endfor %}
+
+        <script type="text/javasript">
+
+        
+            
+        </script>
+    </body>
+</html>

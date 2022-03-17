@@ -5,21 +5,26 @@
 
         <style>
 
+            div.child {
+                font-size: large;
+            }
+
         </style>
     </head>
     <body>
 
         <button>
             {% set k = "browse?p="+ p %}
-            <a href={{k}}>Parent</a>
+            <a class="child" href={{k}}>Parent</a>
         </button>
 
-
+        <!-- run through a loop to write all the children -->
         {% for child in dirList %}
 
+        <!-- creating the url for this child -->
         {% set route = "browse?p=" + r + "/" + child %}
 
-        <div>
+        <div class="child">
             <a href={{route}}>
                 {{ child }}
             </a>

@@ -5,16 +5,20 @@ from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, send_file
 
 app = Flask(__name__)
-rootDir = "C:/Users/decla/VSCode/SimpleServerLab/Data"; print(rootDir)
-generalDir = path.abspath("./Data"); print(generalDir, len(generalDir))
-rootDir = generalDir
 
+# the root direcotry on the local machine
+# different on every computer
+generalDir = path.abspath("./Data")
 
-app.config["UPLOAD_FOLDER"] = rootDir
+app.config["UPLOAD_FOLDER"] = generalDir
 
 @app.route("/browse")
 def browse():
-    print("   [[Browse]]")
+    '''
+        Brouse the server's directories, and downloads files
+
+        :param p; path used to find the desired dir or file        
+    '''
 
     # grab the URL encodeed path
     r = request.args.get("p")
@@ -28,14 +32,14 @@ def browse():
         parent += "/"+k[a]
 
     # get the absolute path
-    route = path.abspath(rootDir+r)
+    route = path.abspath(generalDir+r)
     
     # list all children in given directory
     if(path.isdir(route)):
         dir = listdir(route)
 
     # protects against client access local files
-    if(route[:len(generalDir)] != path.abspath(rootDir)):
+    if(route[:len(generalDir)] != path.abspath(generalDir)):
         return tryAgain()
     
     if(path.isfile(route)):
@@ -52,6 +56,11 @@ def browse():
     
 @app.route("/file", methods=["GET","POST"])
 def fileControle():
+    '''
+        Download a dir or file or upload a file to the server
+        
+        :param request.method: they type of method used deturmines upload or download
+    '''
 
     # GET request
     if request.method == "GET":
@@ -66,16 +75,22 @@ def fileControle():
     return "Incorrect Request Method"
 
 def getMyFile():
+    '''
+        Download a dir or file from server
+        
+        :param p: path to dir or file
+    '''
+
     # grab the URL encodeed path
     r = request.args.get("p")
     if(r == None):
         r = ""
     
     # get the absolute path
-    route = path.abspath(rootDir+r)
+    route = path.abspath(generalDir+r)
     
     # protects against client access local files
-    if route[:len(generalDir)] != path.abspath(rootDir):
+    if route[:len(generalDir)] != path.abspath(generalDir):
         return tryAgain()
     
     # checks to see if the file exits 
@@ -95,6 +110,13 @@ def getMyFile():
     return render_template("404error.html",prob=[errormessage,instructions])
 
 def putFile(req):
+    '''
+        Upload a file to the server
+        
+        :param file: file to upload
+        ;param n: name to save the file as
+        ;param p: dir path for where to save the file to
+    '''
 
     # start with everything as none
     f = name = p = None
@@ -118,11 +140,11 @@ def putFile(req):
         p = f.filename
 
     # combine root and path
-    k = path.join(rootDir,p)
+    k = path.join(generalDir,p)
     k = path.abspath(k)
 
     # protects against client access local files
-    if k[:len(generalDir)] != path.abspath(rootDir):
+    if k[:len(generalDir)] != path.abspath(generalDir):
         return tryAgain()
 
     # make route if it does not yet exist
@@ -131,7 +153,7 @@ def putFile(req):
     route = path.abspath(route)
 
     # protects against client access local files
-    if route[:len(generalDir)] != path.abspath(rootDir):
+    if route[:len(generalDir)] != path.abspath(generalDir):
         return tryAgain()
 
     # overiding file
@@ -141,17 +163,16 @@ def putFile(req):
 
     return "Ran"
 
-@app.route("/tester")
-def tester():
-
-    prob = ["server Error","Run Again"]
-    return render_template("404error.html",prob=prob)
-
 
 def zipper(dataRoute):
+    '''
+        zip up a directory
+        
+        :param dataRoute: reletive route to the dir
+    '''
 
     # route
-    r = path.join(rootDir,dataRoute)
+    r = path.join(generalDir,dataRoute)
     
     # make a zip file of the route
     shutil.make_archive(
@@ -181,6 +202,9 @@ def zipper(dataRoute):
     
 
 def tryAgain():
+    '''
+        if files or directoes outside of the given paramiters are trying to be accessed
+    '''
     errormessage = "Foul Play Detected"
     instructions = "Only attempt to access authorized files"
     return render_template("404error.html",prob=[errormessage,instructions])
